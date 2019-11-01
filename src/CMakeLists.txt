@@ -1,4 +1,4 @@
-include_directories(./scenes)
+include_directories(./include)
 
 aux_source_directory(./scenes EulerOperations_src_source_files)
 
