@@ -1,5 +1,8 @@
 include_directories(./include)
 
-aux_source_directory(./scenes EulerOperations_src_source_files)
+aux_source_directory(./renders/renderobj  RenderObj_src)
+aux_source_directory(./renders Render_src)
+aux_source_directory(./scenes Scenes_src)
+aux_source_directory(./include/json Json_src)
 
-add_library(src ${EulerOperations_src_source_files})
+add_library(src ${Scenes_src} ${Json_src} ${Render_src} ${RenderObj_src})

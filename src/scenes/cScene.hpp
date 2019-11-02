@@ -1,20 +1,25 @@
 #include <memory>
-
+#include <string>
 class cScene 
-{
-    enum SceneStatus{
-        BeforeInit,
-        InitSucc,
-        Destroied
-    };
-    
+{   
 public:
     cScene();
     ~cScene();
     virtual void Init() = 0;
     virtual void Update() = 0;
 
-private:
+protected:
+    enum SceneStatus{
+        BeforeInit = 0,
+        InitSucc,
+        Destroied,
+        ScenStatusNum
+    };
+    
+    std::string SceneStatusStr[ScenStatusNum] = {
+        "BeforeInit", 
+        "InitSucc", 
+        "Destoried" 
+    };
     enum SceneStatus mSceneStatus;
-    int mSceneId;
 };

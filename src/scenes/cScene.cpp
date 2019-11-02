@@ -3,11 +3,11 @@
 
 cScene::cScene()
 {
-    std::cout << "[log] base scene constructed" << std::endl;
-    this->mSceneId = 0;
+    // std::cout << "[log] base scene constructed" << std::endl;
+    mSceneStatus = BeforeInit;
 }
 
 cScene::~cScene()
 {
-    std::cout << "[log] base scene deconstructed" << std::endl;
+    // std::cout << "[log] base scene deconstructed" << std::endl;
 }

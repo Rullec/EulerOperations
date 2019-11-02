@@ -1,0 +1,6 @@
+
+class cBaseRenderObj{
+public:
+    cBaseRenderObj();
+    
+};

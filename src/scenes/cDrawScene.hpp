@@ -1,29 +1,36 @@
 #include "cScene.hpp"
-#include "GL/glew.h"
-#include "GL/freeglut.h"
+
 /*
     class cDrawScene:
         Add rendering functionalities to its base class cScene, which is aim at displaying on the screen
 */
 class cDrawScene : public cScene{
     struct MainWindowInfo{
-        MainWindowInfo(int _argc = 1, char ** _argv = nullptr, int width = 600, int length = 800);
+        MainWindowInfo(int _argc = 1, char ** _argv = nullptr, int start_x = 100, int start_y = 100, 
+            int width = 600, int height = 800);
         int argc;
         char ** argv;
-        int width, length;
+        int start_x, start_y;
+        int width, height;
+        double clear_color[4];
     };
 
 public:
-    cDrawScene(int argc, char ** argv);
+    cDrawScene(int argc, char ** argv, std::string);
     ~cDrawScene();
     virtual void Init() override;
     virtual void Update() override;
     virtual void MainLoop();
-    virtual void AddObj();
 
 private:
-    void InitMembers(int argc, char ** argv);
+    // construct memebers
+    void ConstructMembers(int argc, char ** argv, std::string );
+
+    // init funcs
+    void ParseConf();
     void InitGL();
-    int mObjNum;
+
+    // member vars
+    std::string mConfPath;
     std::unique_ptr<struct MainWindowInfo> mMainWindowInfo;
 };
