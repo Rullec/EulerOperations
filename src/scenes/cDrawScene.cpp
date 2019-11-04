@@ -74,6 +74,7 @@ void cDrawScene::MainLoop()
 void cDrawScene::ConstructMembers(int argc, char ** argv, std::string conf_path)
 { 
     mConfPath = conf_path;
+    mRenderType = RenderType::Base;
     mMainWindowInfo = std::unique_ptr<MainWindowInfo>(new MainWindowInfo());
     mMainWindowInfo->argc = argc;
     mMainWindowInfo->argv = argv;
@@ -132,11 +133,8 @@ void cDrawScene::InitRender()
         std::cout <<"[error] Render Init repeated" << std::endl;
         exit(1);
     }
-    else
-    {
-        mRender = (std::unique_ptr<cBaseRender>)(new cBaseRender(mConfPath));
-        mRender->Init();
-    }
-    
 
+    mRender = (std::unique_ptr<cBaseRender>)(new cBaseRender(mConfPath));
+    mRender->Init();
+    
 }

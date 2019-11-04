@@ -62,7 +62,6 @@ void cBaseRender::ConstructMembers(std::string conf_path)
 {
     mConfPath = conf_path, mVertexShaderPath = "", mFragmentShaderPath = "";
     mShaderProgram = 0;
-    mRenderList.clear();
 }
 
 void cBaseRender::ParseConf()

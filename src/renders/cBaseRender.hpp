@@ -9,11 +9,11 @@ public:
     ~cBaseRender();
     virtual void Init();
     virtual void Update();
-private:
+
+protected:
     void ConstructMembers(std::string );
     void ParseConf();
     void InitShader();
     std::string mConfPath, mVertexShaderPath, mFragmentShaderPath;
     unsigned int mShaderProgram;
-    std::vector<std::unique_ptr<cBaseRenderObj>> mRenderList;
 };

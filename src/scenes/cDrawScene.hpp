@@ -5,7 +5,14 @@
         Add rendering functionalities to its base class cScene, which is aim at displaying on the screen
 */
 class cBaseRender;
+
 class cDrawScene : public cScene{
+    enum RenderType{
+        Base = 0,
+        Euler,
+        RenderTypeNum
+    };
+
     struct MainWindowInfo{
         MainWindowInfo(int _argc = 1, char ** _argv = nullptr, int start_x = 100, int start_y = 100, 
             int width = 600, int height = 800);
@@ -23,17 +30,18 @@ public:
     virtual void Update() override;
     virtual void MainLoop();
 
-private:
+protected:
     // construct memebers
     void ConstructMembers(int argc, char ** argv, std::string );
 
     // init funcs
     void ParseConf();
     void InitGL();
-    void InitRender();
+    virtual void InitRender();
 
     // member vars
     std::string mConfPath;
+    enum RenderType mRenderType; // "Base" or "Euler"
     std::unique_ptr<struct MainWindowInfo> mMainWindowInfo;
     std::unique_ptr<cBaseRender> mRender;
 };

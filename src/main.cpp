@@ -1,5 +1,5 @@
 #include <iostream>
-#include "scenes/cDrawScene.hpp"
+#include "scenes/cEulerScene.hpp"
 #include "GL/glut.h"
 using namespace std;
 std::unique_ptr<cDrawScene> scene;
@@ -57,7 +57,7 @@ int main(int argc, char ** argv)
 {
     std::cout << "It is only a simple example"<< std::endl;
     std::string conf_path = "../config/test.conf";
-    scene = std::unique_ptr<cDrawScene>(new cDrawScene(argc, argv, conf_path));
+    scene = std::unique_ptr<cDrawScene>(new cEulerScene(argc, argv, conf_path));
     scene->Init();
     glutReshapeFunc(Reshape);
 	glutDisplayFunc(Display);
