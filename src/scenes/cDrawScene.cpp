@@ -2,7 +2,6 @@
 #include "../renders/cBaseRender.hpp"
 #include <Eigen/Core>
 #include <json/json.h>
-#include "GL/glew.h"
 #include "GL/glut.h"
 
 #include <iostream>
@@ -45,35 +44,26 @@ void cDrawScene::Init()
 
     // InitGL
     InitGL();
+
+    // Init Render
+    InitRender();
    
+    // Init done
+    mSceneStatus = SceneStatus::InitSucc;
 }
 
 void cDrawScene::Update()
 {
+    // check status
     std::cout <<"[log] cDrawScene Update" << std::endl;
-    float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
-    };
-
-
-    // VAO
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-
-    // 创建VBO并且写入数据
-    unsigned int VBO;
-    glBindVertexArray(VAO);
-    glGenBuffers(1, &VBO);  // 生成VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-    glEnableVertexAttribArray(0);
+    if(SceneStatus::InitSucc != mSceneStatus)
+    {
+        std::cout <<"[warning] Scene status is " <<  SceneStatusStr[mSceneStatus] <<" but not " << 
+        SceneStatusStr[SceneStatus::InitSucc] << ", return" << std::endl;
+        return ;        
+    }
     
-    // render
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    mRender->Update();
 }
 
 void cDrawScene::MainLoop()
@@ -133,35 +123,20 @@ void cDrawScene::InitGL()
                 mMainWindowInfo->clear_color[3]);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // create shader
-    glewInit();
+}
 
-    std::unique_ptr<cBaseShader> vertex_shader = (std::unique_ptr<cBaseShader>)(new cBaseShader("../src/shaders/vertex.glsl", GL_VERTEX_SHADER)),
-            fragment_shader = (std::unique_ptr<cBaseShader>)(new cBaseShader("../src/shaders/fragement.glsl", GL_FRAGMENT_SHADER));
-
-    
-    // create shader program after shaders
-    int success = 1, logsize = 0;
-    char * infoLog = nullptr;
-    unsigned int shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader->GetShaderHandle());
-    glAttachShader(shader_program, fragment_shader->GetShaderHandle());
-    std::cout <<"vertex shader handle = " << vertex_shader->GetShaderHandle() << std::endl;
-    std::cout <<"fragment shader handle = " << fragment_shader->GetShaderHandle() << std::endl;
-    glLinkProgram(shader_program);
-    glGetProgramiv(shader_program, GL_INFO_LOG_LENGTH, &logsize);
-    infoLog = new char [logsize + 1];
-    memset(infoLog, 0, sizeof(char) * (logsize + 1));
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if(GL_FALSE == success) 
+void cDrawScene::InitRender()
+{
+    if(nullptr != mRender)
     {
-        glGetProgramInfoLog(shader_program, logsize + 1, NULL, infoLog);
-        std::cout << "ERROR::SHADER::LINK_FAILED\n" << infoLog << std::endl;
+        std::cout <<"[error] Render Init repeated" << std::endl;
+        exit(1);
     }
-
-    glUseProgram(shader_program);
+    else
+    {
+        mRender = (std::unique_ptr<cBaseRender>)(new cBaseRender(mConfPath));
+        mRender->Init();
+    }
     
-    // delete shaders after linking
-    vertex_shader.reset();
-    fragment_shader.reset();
+
 }

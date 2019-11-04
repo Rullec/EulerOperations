@@ -1,8 +1,9 @@
-#include "cBaseRender.hpp"
+#include "cBaseShader.hpp"
 #include <GL/glew.h>
 #include <iostream>
 #include <fstream>
 #include <cstring>
+
 // -------------------BaseShader begin-----------------------
 cBaseShader::cBaseShader(std::string src_path, unsigned int shader_type)
 {
@@ -77,7 +78,6 @@ void cBaseShader::CompileSrc()
     int success, logsize;
     glGetShaderiv(mShaderHandle, GL_INFO_LOG_LENGTH, &logsize);
     char * infoLog = new char[logsize + 1];
-    std::cout << "[log] cBaseShader logsize = " << logsize << std::endl;
     memset(infoLog, 0, sizeof(char) * (logsize + 1));
     glGetShaderiv(mShaderHandle, GL_COMPILE_STATUS, &success);
 
