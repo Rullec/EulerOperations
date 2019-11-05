@@ -2,8 +2,11 @@
 #include "../renders/cBaseRender.hpp"
 #include <Eigen/Core>
 #include <json/json.h>
-#include "GL/glut.h"
-
+#ifdef __APPLE__
+    #include "GLUT/glut.h"
+#else
+    #include "GL/glut.h"
+#endif
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -112,7 +115,7 @@ void cDrawScene::ParseConf()
 void cDrawScene::InitGL()
 {
     glutInit(&(mMainWindowInfo->argc), mMainWindowInfo->argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(mMainWindowInfo->width, mMainWindowInfo->height);
     glutCreateWindow("EulerOperationsMainWindow");

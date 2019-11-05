@@ -1,6 +1,12 @@
 #include <iostream>
 #include "scenes/cEulerScene.hpp"
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
 #include "GL/glut.h"
+#endif
+
 using namespace std;
 std::unique_ptr<cDrawScene> scene;
 
