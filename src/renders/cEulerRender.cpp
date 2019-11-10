@@ -23,25 +23,9 @@ void cEulerRender::Update()
         return;
     }
     
-    std::vector<cBaseObj *> & objs = mEulerWorld->GetObjManager();
-    std::cout << objs.size() << std::endl;
-    for(int i=0; i< objs.size(); i++)
-    {
-        cBaseObj * cur = objs[i];
-
-        switch(cur->mObjType)
-        {
-            case ObjType::Euler_Edge: break;
-            case ObjType::Euler_Face: break;
-            case ObjType::Euler_HalfEdge: break;
-            case ObjType::Euler_Loop: break;
-            case ObjType::Euler_Vertex: break;
-            case ObjType::Euler_Solid: break;
-            default: std::cerr << "[error] cEulerRender Unsupported type"; exit(1); break;
-        }
-        std::cout << cur->mObjID << " " << cur->mObjType << std::endl;
-    }
-    
+    DrawVertex();
+    DrawEdge();
+    DrawFace();
 }
 
 void cEulerRender::SetEulerWorld(cEulerWorld * world)
@@ -61,18 +45,23 @@ void cEulerRender::ConstructMembers()
 
 }
 
-void cEulerRender::DrawFace(cBaseObj *)
+void cEulerRender::DrawFace()
 {
-
+    std::vector<cFace *> face_list = mEulerWorld->GetFaceList();
+    std::cout <<"[log] draw " << face_list.size() << " faces" << std::endl;
 }
 
-void cEulerRender::DrawEdge(cBaseObj *)
+void cEulerRender::DrawEdge()
 {
-
+    std::vector<cEdge *> edge_list = mEulerWorld->GetEdgeList();
+    std::cout <<"[log] draw " << edge_list.size() << " edges" << std::endl;
+    std::vector<cHalfEdge *> halfedge_list = mEulerWorld->GetHalfEdgeList();
+    std::cout <<"[log] draw " << halfedge_list.size() <<" halfedges" << std::endl;
 }
 
-void cEulerRender::DrawVertex(cBaseObj *)
+void cEulerRender::DrawVertex()
 {
-
+    std::vector<cVertex *> vertex_list = mEulerWorld->GetVertexList();
+    std::cout <<"[log] draw " << vertex_list.size() << " vertices " << std::endl; 
 }
     

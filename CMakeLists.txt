@@ -12,12 +12,15 @@ include_directories(${GLUT_INCLUDE_DIR})
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 find_package(GLEW REQUIRED)
-# include_directories(${GLEW_INCLUDE_DIR})
+include_directories(${GLEW_INCLUDE_DIRS})
+
+if(APPLE)
+    LINK_DIRECTORIES(/usr/local/lib)
+endif()
 
 # compile
 add_subdirectory(src)
 set(main_src ./src/main.cpp)
 add_executable(${PROJECT_NAME} ${main_src})
 
-message("GLEW: ${GLEW_LIBRARIES}")
-target_link_libraries(${PROJECT_NAME} src ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} src ${GLUT_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} GLEW)

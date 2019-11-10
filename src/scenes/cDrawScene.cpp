@@ -138,6 +138,5 @@ void cDrawScene::InitRender()
     }
 
     mRender = (std::unique_ptr<cBaseRender>)(new cBaseRender(mConfPath));
-    mRender->Init();
-    
+    mRender->Init();   
 }

@@ -14,11 +14,20 @@ public:
     void kemr();            // kill edge make ring
     void kfmrh();           // kill face make ring and h
 
-    // get & set method
-    std::vector<cBaseObj *> & GetObjManager(){return mObjManager;};
+    std::vector<struct cVertex *> & GetVertexList(){return mVertexList;}
+    std::vector<struct cHalfEdge *> & GetHalfEdgeList(){return mHalfEdgeList;}
+    std::vector<struct cEdge *> & GetEdgeList(){return mEdgeList;}
+    std::vector<struct cLoop *> & GetLoopList(){return mLoopList;}
+    std::vector<struct cFace *> & GetFaceList(){return mFaceList;}
+    std::vector<struct cSolid *> & GetSolidList(){return mSolidList;}
 
 private:
-    std::vector<cBaseObj *> mObjManager; // all objs collection
-    unsigned int mObjId;
-    
+
+    //ObjTypeNum vectors, prepare a vector for each obj type
+    std::vector<struct cVertex *> mVertexList;
+    std::vector<struct cHalfEdge *> mHalfEdgeList;
+    std::vector<struct cEdge *> mEdgeList;
+    std::vector<struct cLoop *> mLoopList;
+    std::vector<struct cFace *> mFaceList;
+    std::vector<struct cSolid *> mSolidList;
 };

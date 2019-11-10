@@ -11,9 +11,9 @@ public:
 
 private:
     void ConstructMembers();
-    void DrawFace(cBaseObj *);
-    void DrawEdge(cBaseObj *);
-    void DrawVertex(cBaseObj *);
+    void DrawFace();
+    void DrawEdge();
+    void DrawVertex();
 
     cEulerWorld * mEulerWorld;
 };
