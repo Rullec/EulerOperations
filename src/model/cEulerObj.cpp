@@ -36,6 +36,7 @@ cFace::cFace():cBaseObj()
 {
     mObjType = Euler_Face;
     mFirstLoop = nullptr;
+    mPrevFace = mNextFace = nullptr;
 }
 
 // loop obj
@@ -43,12 +44,16 @@ cLoop::cLoop():cBaseObj()
 {
     mObjType = Euler_Loop;
     mFirstHalfEdge = nullptr;
+    mPrevLoop = nullptr;
+    mNextLoop = nullptr;
 }
 
 // solid obj
 cSolid::cSolid():cBaseObj()
 {
     mObjType = Euler_Solid;
+    mFirstLoop = nullptr;
+    mFirstFace = nullptr;
     // mVertexList.clear();
     // mHalfEdgeList.clear();
     // mEdgeList.clear();

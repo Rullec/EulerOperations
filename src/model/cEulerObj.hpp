@@ -53,17 +53,19 @@ struct cEdge: public cBaseObj{
 struct cFace : public cBaseObj{
     cFace();
     cLoop * mFirstLoop; // outer loop
+    cFace * mPrevFace, * mNextFace;
 };
 
 // loop obj
 struct cLoop: public cBaseObj{
     cLoop();
     cHalfEdge * mFirstHalfEdge;  // Vertex to a edge which consists of the loop.
+    cLoop * mNextLoop, * mPrevLoop;
 };
 
 // solid obj
 struct cSolid : public cBaseObj{
     cSolid();
-    cHalfEdge * mFirstHalfEdge;
-
+    cLoop * mFirstLoop;
+    cFace * mFirstFace;
 };
