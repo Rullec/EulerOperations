@@ -1,10 +1,7 @@
 #include "cEulerWorld.hpp"
+#include "cEulerTools.hpp"
 #include <cstring>
 
-cHalfEdge * FindHalfEdgeByOutVertex(cLoop * loop, cVertex * v);
-cVertex * FindVertexByPos(cSolid * solid, Eigen::Vector3d &pos);
-cVertex * FindVertexByPos(cLoop * loop, Eigen::Vector3d &pos);
-#define EPS 1e-6
 
 cEulerWorld::cEulerWorld()
 {
@@ -19,11 +16,11 @@ cEulerWorld::cEulerWorld()
 void cEulerWorld::Construct()
 {
     std::cout <<"[log] cEulerWorld construct begin" << std::endl;
-    Eigen::Vector3d p0, p1, p2, p3;
-    p0 = Eigen::Vector3d(0, 0, 0);
-    p1 = Eigen::Vector3d(1, 0, 0);
-    p2 = Eigen::Vector3d(1, 0, -1);
-    p3 = Eigen::Vector3d(0, 0, -1);
+    Eigen::Vector3d p0, p1, p2, p3, p4, p5, p6, p7;
+    p0 = Eigen::Vector3d(0, 0, 0), p4 = Eigen::Vector3d(0, 1, 0);
+    p1 = Eigen::Vector3d(1, 0, 0), p5 = Eigen::Vector3d(1, 1, 0);
+    p2 = Eigen::Vector3d(1, 0, -1), p6 = Eigen::Vector3d(1, 1, -1);
+    p3 = Eigen::Vector3d(0, 0, -1), p7 = Eigen::Vector3d(0, 1, -1);
     // mvfs
 
     cSolid * Mainsolid = mvfs(p0);
@@ -46,6 +43,51 @@ void cEulerWorld::Construct()
         mef(Mainsolid, v1, v2);
     }
 
+    // mev * 4
+    {
+        cVertex * cur_v = FindVertexByPos(Mainsolid, p0);
+        mev(Mainsolid->mFirstLoop, cur_v, p4);
+        cur_v = FindVertexByPos(Mainsolid, p1);
+        mev(Mainsolid->mFirstLoop, cur_v, p5);
+        cur_v = FindVertexByPos(Mainsolid, p2);
+        mev(Mainsolid->mFirstLoop, cur_v, p6);
+        cur_v = FindVertexByPos(Mainsolid, p3);
+        mev(Mainsolid->mFirstLoop, cur_v, p7);
+    }
+
+    // mef * 4
+    {
+        cVertex * cur_v1 = FindVertexByPos(Mainsolid, p4),
+                * cur_v2 = FindVertexByPos(Mainsolid, p5),
+                * cur_v3 = FindVertexByPos(Mainsolid, p6),
+                * cur_v4 = FindVertexByPos(Mainsolid, p7);
+        mef(Mainsolid, cur_v1, cur_v2);
+        mef(Mainsolid, cur_v2, cur_v3);
+        mef(Mainsolid, cur_v3, cur_v4);
+        mef(Mainsolid, cur_v4, cur_v1);
+    }
+
+    // mev * 1 -> kemr -> mev * 3 -> mef
+    {
+        
+    }
+
+    // mev * 4
+    {
+
+    }
+
+    // mef * 4
+    {
+
+    }
+
+    // kfmrh 
+    {
+
+    }
+    
+    // finished
 }
 
 cSolid * cEulerWorld::mvfs(Eigen::Vector3d pos)
@@ -77,6 +119,21 @@ cSolid * cEulerWorld::mvfs(Eigen::Vector3d pos)
 }
 
 // make a new vertex and an edge
+void cEulerWorld::mev(cLoop * loop, cSolid * solid, Eigen::Vector3d origin_pos, Eigen::Vector3d pos)
+{
+    cVertex * ori_v = FindVertexByPos(solid, origin_pos);
+    if(nullptr != ori_v)
+    {
+        mev(loop, ori_v, pos);
+    }
+    else
+    {
+        std::cout <<"[error] mev failed: the origin vertex is null" << std::endl;
+        exit(1);
+    }
+    
+}
+
 void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, Eigen::Vector3d pos)
 {
     // 创建顶点
@@ -140,6 +197,21 @@ void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, Eigen::Vector3d pos)
 
 }
 
+void cEulerWorld::mef(cSolid * solid, Eigen::Vector3d v1_pos, Eigen::Vector3d v2_pos)
+{
+    cVertex * v1 = FindVertexByPos(solid, v1_pos), * v2 = FindVertexByPos(solid, v2_pos);
+    if(nullptr != v1 && nullptr != v2)
+    {
+        mef(solid, v1, v2);
+    }
+    else
+    {
+        std::cout <<"[error] empty vertex in mef" << std::endl;
+        exit(1);
+    }
+
+}
+
 void cEulerWorld::mef(cSolid * solid, cVertex *v1, cVertex * v2)
 {
     if(nullptr == solid || nullptr == v1 || nullptr == v2)
@@ -169,71 +241,4 @@ void cEulerWorld::mef(cSolid * solid, cVertex *v1, cVertex * v2)
     }
     
 
-}
-
-
-cHalfEdge * FindHalfEdgeByOutVertex(cLoop * loop, cVertex * v)
-{
-    if(nullptr == loop || nullptr == v)
-    {
-        std::cout <<"[error] FindHalfEdgeByOutVertex input null" << std::endl;
-        exit(1);
-    }
-    cHalfEdge * cur_edge = loop->mFirstHalfEdge;
-    while(cur_edge && cur_edge->mOriVertex != v)
-    {
-        cur_edge = cur_edge->mNextHF;
-    }
-
-    if(cur_edge && cur_edge->mOriVertex == v) return cur_edge;
-    else return nullptr;
-}
-
-
-cVertex * FindVertexByPos(cSolid * solid, Eigen::Vector3d &pos)
-{
-    cLoop * first_loop;
-    if(solid == nullptr || (first_loop = solid->mFirstLoop) == nullptr)
-    {
-        std::cout <<"[error] FindVertexByPos input solid is empty" << std::endl;
-        exit(1);
-    }
-
-    cLoop * cur_loop = first_loop;
-    cVertex * v = nullptr;
-    do{
-        
-        v = FindVertexByPos(cur_loop, pos);
-        if(v!= nullptr)
-        {
-            break;
-        }
-        cur_loop = cur_loop->mNextLoop;
-    }while(cur_loop != nullptr && cur_loop != first_loop);
-
-    return v;
-}
-
-cVertex * FindVertexByPos(cLoop * loop, Eigen::Vector3d &pos)
-{
-    if(nullptr == loop || nullptr == loop->mFirstHalfEdge)
-    {
-        std::cout <<"[error] FindVertexByPos: the loop is empty" << std::endl;
-        return nullptr;
-    }
-
-    cVertex * res = nullptr;
-    cHalfEdge * cur_halfedge = loop->mFirstHalfEdge;
-
-    do{
-        if((cur_halfedge->mOriVertex->mPos - pos).squaredNorm() < EPS)
-        {
-            return res;
-        }
-
-        cur_halfedge = cur_halfedge->mNextHF;
-    }while(cur_halfedge != loop->mFirstHalfEdge && cur_halfedge != nullptr);
-
-    return res;
-    
 }

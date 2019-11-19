@@ -1,3 +1,4 @@
+#pragma once
 #include "cBaseRender.hpp"
 
 class cEulerWorld;

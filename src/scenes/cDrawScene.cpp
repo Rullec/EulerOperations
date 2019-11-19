@@ -115,7 +115,11 @@ void cDrawScene::ParseConf()
 void cDrawScene::InitGL()
 {
     glutInit(&(mMainWindowInfo->argc), mMainWindowInfo->argv);
-    glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #ifdef __APPLE__
+        glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #else
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+    #endif
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(mMainWindowInfo->width, mMainWindowInfo->height);
     glutCreateWindow("EulerOperationsMainWindow");
