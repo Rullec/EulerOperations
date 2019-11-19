@@ -33,7 +33,7 @@ struct cBaseObj{
 struct cVertex: public cBaseObj{
     cVertex();
     Eigen::Vector3d mPos;
-    struct cHalfEdge * mOriHalfEdge;
+    // struct cHalfEdge * mOriHalfEdge;
 };
 
 // half edge
@@ -54,14 +54,15 @@ struct cEdge: public cBaseObj{
 struct cFace : public cBaseObj{
     cFace();
     cLoop * mFirstLoop; // outer loop
-    cFace * mPrevFace, * mNextFace;
+    cFace * mNextFace;
 };
 
 // loop obj
 struct cLoop: public cBaseObj{
     cLoop();
     cHalfEdge * mFirstHalfEdge;  // Vertex to a edge which consists of the loop.
-    cLoop * mNextLoop, * mPrevLoop;
+    cVertex * mFirstVertex;     // the first vertex in this loop.
+    cLoop * mNextLoop;
 };
 
 // solid obj

@@ -12,7 +12,7 @@ cVertex::cVertex():cBaseObj()
 {
     mObjType = ObjType::Euler_Vertex;
     mPos.setZero();
-    mOriHalfEdge = nullptr;
+    // mOriHalfEdge = nullptr;
 }
 
 // half edge object
@@ -36,7 +36,7 @@ cFace::cFace():cBaseObj()
 {
     mObjType = Euler_Face;
     mFirstLoop = nullptr;
-    mPrevFace = mNextFace = nullptr;
+    mNextFace = nullptr;
 }
 
 // loop obj
@@ -44,7 +44,7 @@ cLoop::cLoop():cBaseObj()
 {
     mObjType = Euler_Loop;
     mFirstHalfEdge = nullptr;
-    mPrevLoop = nullptr;
+    mFirstVertex = nullptr;
     mNextLoop = nullptr;
 }
 

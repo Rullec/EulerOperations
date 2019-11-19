@@ -9,8 +9,8 @@ public:
     void Construct();       // default construct method
 
     // base euler ops
-    void mev(cLoop *loop, cSolid *, Eigen::Vector3d, Eigen::Vector3d);         // mev overloaded
-    void mev(cLoop *loop, cVertex * Vertex, Eigen::Vector3d);        // make a vertex and connect it with an existing one with an edge
+    void mev(cLoop *loop, const Eigen::Vector3d &, const Eigen::Vector3d &);         // mev overloaded
+    void mev(cLoop *loop, cVertex * Vertex, const Eigen::Vector3d &);        // make a vertex and connect it with an existing one with an edge
     void mef(cSolid * solid, Eigen::Vector3d, Eigen::Vector3d);      // mef overloaded
     void mef(cSolid * solid, cVertex *v1, cVertex * v2);             // make a new edge and a face
     cSolid *mvfs(Eigen::Vector3d );            // make vertex, face, solid

@@ -27,12 +27,9 @@ void cEulerWorld::Construct()
     
     // mev * 3
     {
-        cVertex * cur_v = FindVertexByPos(Mainsolid, p0);
-        mev(Mainsolid->mFirstLoop, cur_v, p1);
-        cur_v = FindVertexByPos(Mainsolid, p1);
-        mev(Mainsolid->mFirstLoop, cur_v, p2);
-        cur_v = FindVertexByPos(Mainsolid, p2);
-        mev(Mainsolid->mFirstLoop, cur_v, p3);
+        mev(Mainsolid->mFirstLoop, p0, p1);
+        mev(Mainsolid->mFirstLoop, p1, p2);
+        mev(Mainsolid->mFirstLoop, p2, p3);
     }
 
 
@@ -40,19 +37,16 @@ void cEulerWorld::Construct()
     {
         cVertex * v1 = FindVertexByPos(Mainsolid, p0),
                 * v2 = FindVertexByPos(Mainsolid, p3);
+        Show(Mainsolid->mFirstLoop);
         mef(Mainsolid, v1, v2);
     }
 
     // mev * 4
     {
-        cVertex * cur_v = FindVertexByPos(Mainsolid, p0);
-        mev(Mainsolid->mFirstLoop, cur_v, p4);
-        cur_v = FindVertexByPos(Mainsolid, p1);
-        mev(Mainsolid->mFirstLoop, cur_v, p5);
-        cur_v = FindVertexByPos(Mainsolid, p2);
-        mev(Mainsolid->mFirstLoop, cur_v, p6);
-        cur_v = FindVertexByPos(Mainsolid, p3);
-        mev(Mainsolid->mFirstLoop, cur_v, p7);
+        mev(Mainsolid->mFirstLoop, p0, p4);
+        mev(Mainsolid->mFirstLoop, p1, p5);
+        mev(Mainsolid->mFirstLoop, p2, p6);
+        mev(Mainsolid->mFirstLoop, p3, p7);
     }
 
     // mef * 4
@@ -97,13 +91,14 @@ cSolid * cEulerWorld::mvfs(Eigen::Vector3d pos)
     cLoop * new_loop = new cLoop();
     cFace * new_face = new cFace();
     cSolid * new_solid = new cSolid();
-    
+
     // set vertex
     new_vertex->mPos = pos;
-    new_vertex->mOriHalfEdge = nullptr;
+    // new_vertex->mOriHalfEdge = nullptr;
 
     // set loop
     new_loop->mFirstHalfEdge = nullptr;
+    new_loop->mFirstVertex = new_vertex;
 
     // set face
     new_face->mFirstLoop = new_loop;
@@ -114,39 +109,44 @@ cSolid * cEulerWorld::mvfs(Eigen::Vector3d pos)
     mLoopList.push_back(new_loop);
     mFaceList.push_back(new_face);
     mSolidList.push_back(new_solid);
-    
+
     return new_solid;
 }
 
 // make a new vertex and an edge
-void cEulerWorld::mev(cLoop * loop, cSolid * solid, Eigen::Vector3d origin_pos, Eigen::Vector3d pos)
+void cEulerWorld::mev(cLoop * loop, const Eigen::Vector3d & origin_pos, const Eigen::Vector3d & pos)
 {
-    cVertex * ori_v = FindVertexByPos(solid, origin_pos);
+    cVertex * ori_v = FindVertexByPos(loop, origin_pos);
     if(nullptr != ori_v)
     {
         mev(loop, ori_v, pos);
     }
     else
     {
-        std::cout <<"[error] mev failed: the origin vertex is null" << std::endl;
+        std::cout <<"[error] mev: the origin vertex is null" << std::endl;
         exit(1);
     }
     
 }
 
-void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, Eigen::Vector3d pos)
+void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, const Eigen::Vector3d & pos)
 {
-    // 创建顶点
-    cVertex * new_vertex = new cVertex();
-    mVertexList.push_back(new_vertex);
-    new_vertex->mPos = pos;
-    
     // if the loop is null, we can not find hfs
     if(nullptr == loop)
     {
-        std::cout <<"[error] mev loop is null, can not find the final halfedge" << std::endl;
+        std::cout <<"[error] mev: input loop is null, can not find the desired halfedge" << std::endl;
         exit(1);
     }
+    if(nullptr == ori_vertex)
+    {
+        std::cout <<"[error] mev: input ori_vertex in null" << std::endl;
+        exit(1);
+    }
+
+    // 创建顶点
+    cVertex * new_vertex = new cVertex();
+    mVertexList.push_back(new_vertex);
+    new_vertex->mPos = pos;    
 
     // create 2 halfedges
     cHalfEdge * new_halfedge1 = new cHalfEdge();
@@ -169,6 +169,8 @@ void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, Eigen::Vector3d pos)
     new_halfedge2->mDestVertex = ori_vertex;
     new_halfedge1->mAdjacentHF = new_halfedge2;
     new_halfedge2->mAdjacentHF = new_halfedge1;
+    new_halfedge1->mNextHF = new_halfedge2;
+    new_halfedge2->mPrevHF = new_halfedge1;
     
     // arrange the loop and pointers
     if(nullptr == loop->mFirstHalfEdge)
@@ -181,13 +183,13 @@ void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, Eigen::Vector3d pos)
     else
     {
         // in this loop, find the specified halfedge pointed from this vertex;
-        cHalfEdge * hf_from_v = FindHalfEdgeByOutVertex(loop, ori_vertex);
+        cHalfEdge * hf_from_v = FindHalfEdgeByOriVertex(loop, ori_vertex);
         if(hf_from_v == nullptr)
         {
             std::cout <<"[error] mev: find target halfedge failed in this loop" << std::endl;
             exit(1);
         }
-        cHalfEdge * hf_to_v = hf_from_v->mPrevHF;
+        cHalfEdge * hf_to_v = hf_from_v->mAdjacentHF;
         hf_to_v->mNextHF = new_halfedge1;
         new_halfedge1->mPrevHF = hf_to_v;
 
@@ -220,7 +222,7 @@ void cEulerWorld::mef(cSolid * solid, cVertex *v1, cVertex * v2)
     }
     // this face should include a loop, now try to find the loop
     // mef will make a new edge and a new face, before that there should be a open loop, we must find it first the finish it and create a new loop
-    
+
     // create new face 
     cFace * new_face = new cFace();
     mFaceList.push_back(new_face);
@@ -237,8 +239,44 @@ void cEulerWorld::mef(cSolid * solid, cVertex *v1, cVertex * v2)
             cur_face = cur_face->mNextFace;
         }
         cur_face->mNextFace = new_face;
-        new_face->mPrevFace = cur_face;
     }
     
+    // create new edge, new loop
+    cEdge * new_edge = new cEdge();
+    cHalfEdge   * new_hf1 = new cHalfEdge(),        // v1 -> v2
+                * new_hf2 = new cHalfEdge();        // v2 -> v1
+    mEdgeList.push_back(new_edge);
+    mHalfEdgeList.push_back(new_hf1);
+    mHalfEdgeList.push_back(new_hf2);
 
+    // set new edge
+    new_edge->mHalfEdge1 = new_hf1;
+    new_edge->mHalfEdge2 = new_hf2;
+
+    // set 2 new halfedges
+    new_hf1->mOriVertex = v1, new_hf1->mDestVertex = v2;
+    new_hf2->mOriVertex = v2, new_hf2->mDestVertex = v1;
+    new_hf1->mAdjacentHF = new_hf2;
+    new_hf2->mAdjacentHF = new_hf1;
+
+    // find the loop which includes v1 and v2
+    // create a new loop, then set the relationship between halfedge
+    cLoop * cur_loop = FindLoopBy2Vertices(solid, v1, v2);
+    if(nullptr == cur_loop)
+    {
+        std::cout <<"[error] mef: no loop includes v1 and v2 " << std::endl;
+        exit(1);
+    }
+
+    // create a new loop
+    cLoop * new_loop = new cLoop();
+    mLoopList.push_back(new_loop);
+    
+    // insert this new loop into the last cur_loop
+    cLoop * final_loop = cur_loop;
+    while(final_loop->mNextLoop != nullptr) final_loop = final_loop->mNextLoop;
+    final_loop->mNextLoop = new_loop;
+    
+    // didn't finished
+    exit(1);
 }
