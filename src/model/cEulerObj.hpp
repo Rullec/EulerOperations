@@ -68,6 +68,6 @@ struct cLoop: public cBaseObj{
 // solid obj
 struct cSolid : public cBaseObj{
     cSolid();
-    cLoop * mFirstLoop;
+    // cLoop * mFirstLoop;
     cFace * mFirstFace;
 };

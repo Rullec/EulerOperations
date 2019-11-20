@@ -52,7 +52,7 @@ cLoop::cLoop():cBaseObj()
 cSolid::cSolid():cBaseObj()
 {
     mObjType = Euler_Solid;
-    mFirstLoop = nullptr;
+    // mFirstLoop = nullptr;
     mFirstFace = nullptr;
     // mVertexList.clear();
     // mHalfEdgeList.clear();
