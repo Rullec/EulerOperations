@@ -36,12 +36,12 @@ void Show(cHalfEdge * hf)
 {
     if(nullptr != hf)
     {
-        std::cout <<"******************************" << std::endl;
+        // std::cout <<"******************************" << std::endl;
         // std::cout <<"[log] show prev halfedge ori_v = " << hf->mPrevHF->mOriVertex->mPos.transpose() << ", dest_v = " << hf->mPrevHF->mDestVertex->mPos.transpose() << std::endl;
-        std::cout <<"[log] show cur halfedge ori_v = " << hf->mOriVertex->mPos.transpose() << ", dest_v = " << hf->mDestVertex->mPos.transpose() << std::endl;
+        std::cout <<"\t\t\t**********Show cur halfedge ori_v = " << hf->mOriVertex->mPos.transpose() << ", dest_v = " << hf->mDestVertex->mPos.transpose() << std::endl;
         // std::cout <<"[log] show adjacent halfedge ori_v = " << hf->mAdjacentHF->mOriVertex->mPos.transpose() << ", dest_v = " << hf->mAdjacentHF->mDestVertex->mPos.transpose() << std::endl;
         // std::cout <<"[log] show next halfedge ori_v = " << hf->mNextHF->mOriVertex->mPos.transpose() << ", dest_v = " << hf->mNextHF->mDestVertex->mPos.transpose() << std::endl;
-        std::cout <<"******************************" << std::endl;
+        // std::cout <<"******************************" << std::endl;
     }
     else
     {
@@ -60,51 +60,51 @@ void Show(cLoop *loop)
         int cnt = 0;
         cHalfEdge * first_hf = loop->mFirstHalfEdge;
         cHalfEdge * cur_hf = first_hf;
-        std::cout <<"**********Show loop begin************" << std::endl;
+        std::cout <<"\t\t**********Show Loop begin************" << std::endl;
         if(first_hf == nullptr)
         {
-            std::cout <<"loop " << loop <<" have only 1 vertex: " << loop->mFirstVertex->mPos.transpose() << std::endl;
+            std::cout <<"\t\tloop " << loop <<" have only 1 vertex: " << loop->mFirstVertex->mPos.transpose() << std::endl;
         }
         else
         {
             do{
-                std::cout <<"********loop " << loop << " hf " << cnt++ << std::endl;
+                std::cout << "\t\t**********loop " << loop << " hf " << cnt++ << std::endl;
                 Show(cur_hf);
                 cur_hf = cur_hf->mNextHF;
             }while(cur_hf != first_hf);
         }
         
         
-        std::cout <<"**********Show loop end************" << std::endl;
+        std::cout <<"\t\t**********Show Loop end**********" << std::endl;
     }
     
 }
 void Show(cFace * face)
 {
-    std::cout <<"**********Show face begin************" << std::endl;
+    std::cout <<"\t**********Show Face begin**********" << std::endl;
     cLoop * cur_loop = face->mFirstLoop;
     int cnt = 0;
     while(cur_loop)
     {
-        std::cout <<"**********solid loop " << cur_loop << " " << cnt++ << std::endl;
+        std::cout <<"\t**********Face-loop " << cur_loop << " " << cnt++ << std::endl;
         Show(cur_loop);
         cur_loop = cur_loop->mNextLoop;
     }
-    std::cout <<"**********Show face end************" << std::endl;
+    std::cout <<"\t**********Show Face end**********" << std::endl;
 }
 
 void Show(cSolid * solid)
 {
-    std::cout <<"**********Show solid begin************" << std::endl;
+    std::cout <<"**********Show Solid begin**********" << std::endl;
     cFace * cur_face = solid->mFirstFace;
     int cnt = 0;
     while(cur_face)
     {
-        std::cout <<"**********solid face " << cur_face << " " << cnt++ << std::endl;
+        std::cout <<"**********Solid-Face " << cur_face << " " << cnt++ << std::endl;
         Show(cur_face);
         cur_face = cur_face->mNextFace;
     }
-    std::cout <<"**********Show solid end************" << std::endl;
+    std::cout <<"**********Show solid end**********" << std::endl;
 }
 
 
@@ -255,7 +255,7 @@ int CheckVertexInLoop(cLoop * loop, cVertex *v)
     return 0;
 }
 
-cLoop * FindLoopByVerticesInFace(cFace * face, const std::vector<cVertex *> & v_lst)
+cLoop * FindLoopByVerticesInFace(cFace * face, const std::vector<cVertex *> & v_lst, bool only_find_outer_loop = false)
 {
     // check input
     if(nullptr == face)
@@ -295,12 +295,70 @@ cLoop * FindLoopByVerticesInFace(cFace * face, const std::vector<cVertex *> & v_
         {
             return cur_loop;
         }
-        
+
+        // only find the outer loop, so exit in the first cycle
+        if(only_find_outer_loop == true)
+        {
+            break;
+        }
         cur_loop = cur_loop->mNextLoop;
     }
     return nullptr;
 }
 
+cFace * FindFaceByVertices(cSolid * solid, const std::vector<Eigen::Vector3d> &v_lst_pos)
+{
+    std::vector<cVertex *> v_lst;
+    for(int i=0; i<v_lst_pos.size(); i++)
+    {
+        cVertex * v = FindVertexByPos(solid, v_lst_pos[i]);
+        if(v == nullptr)
+        {
+            std::cout <<"[error] FindFaceByVertices: cannot find vertex in solid" << std::endl;
+            exit(1);
+        }
+        v_lst.push_back(v);
+    }
+    cFace * cur_face = solid->mFirstFace;
+    while(cur_face)
+    {
+        if(nullptr != FindLoopByVerticesInFace(cur_face, v_lst))
+        {
+            return cur_face;
+        }
+        cur_face = cur_face->mNextFace;
+    }
+    return nullptr;
+}
+
+cLoop * FindOuterLoopByVerticesInSolid(cSolid * solid, const std::vector<Eigen::Vector3d> &v_lst_pos)
+{
+    std::vector<cVertex *> v_lst;
+    for(int i=0; i<v_lst_pos.size(); i++)
+    {
+        cVertex * v = FindVertexByPos(solid, v_lst_pos[i]);
+        if(v == nullptr)
+        {
+            std::cout <<"[error] FindOuterLoopByVerticesInSolid: cannot find vertex in solid" << std::endl;
+            exit(1);
+        }
+        v_lst.push_back(v);
+    }
+
+    cFace * cur_face = solid->mFirstFace;
+    cLoop * target_loop = nullptr;
+    while(cur_face)
+    {
+        target_loop = FindLoopByVerticesInFace(cur_face, v_lst, true);
+        if(nullptr != target_loop)
+        { 
+            break;
+        }
+        cur_face = cur_face->mNextFace;
+    }
+    
+    return target_loop;
+}
 
 cLoop * FindLoopByVerticesInSolid(cSolid * solid, const std::vector<cVertex *> & v_lst)
 {

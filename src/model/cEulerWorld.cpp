@@ -98,8 +98,9 @@ void cEulerWorld::Construct()
         
         // 4. mef
         mef(Mainsolid, p_middle_top[3], p_middle_top[0]);
-        Show(cur_loop);
+        // Show(cur_loop);
     }
+    // Show(Mainsolid);
 
     // mev * 4
     {
@@ -108,11 +109,11 @@ void cEulerWorld::Construct()
         v_lst.push_back(p_middle_top[1]);
         v_lst.push_back(p_middle_top[2]);
         v_lst.push_back(p_middle_top[3]);
-        cLoop * inner_loop_top = FindLoopByVerticesInSolid(Mainsolid, v_lst);
-        mev(inner_loop_top, p_middle_top[0], p_middle_bottom[0]);
-        mev(inner_loop_top, p_middle_top[1], p_middle_bottom[1]);
-        mev(inner_loop_top, p_middle_top[2], p_middle_bottom[2]);
-        mev(inner_loop_top, p_middle_top[3], p_middle_bottom[3]);
+        cLoop * outer_loop_top = FindOuterLoopByVerticesInSolid(Mainsolid, v_lst);//此时存在两个环, 一个是被包含在Face中的内环, 一个是在face里面的外环.内环在这里不应该被选中
+        mev(outer_loop_top, p_middle_top[0], p_middle_bottom[0]);
+        mev(outer_loop_top, p_middle_top[1], p_middle_bottom[1]);
+        mev(outer_loop_top, p_middle_top[2], p_middle_bottom[2]);
+        mev(outer_loop_top, p_middle_top[3], p_middle_bottom[3]);
 
     }
 
@@ -124,11 +125,27 @@ void cEulerWorld::Construct()
         mef(Mainsolid, p_middle_bottom[3], p_middle_bottom[0]);
     }
 
+    // Show(Mainsolid);
+    // DispalyElements();
     // kfmrh 
     {
+        v_lst.clear();
+        v_lst.push_back(p_middle_bottom[0]);
+        v_lst.push_back(p_middle_bottom[1]);
+        v_lst.push_back(p_middle_bottom[2]);
+        v_lst.push_back(p_middle_bottom[3]);
+        cFace * f_slave = FindFaceByVertices(Mainsolid, v_lst);
 
+        v_lst.clear();
+        v_lst.push_back(p0);
+        v_lst.push_back(p1);
+        v_lst.push_back(p2);
+        v_lst.push_back(p3);
+        cFace * f_master = FindFaceByVertices(Mainsolid, v_lst);
+        kfmrh(Mainsolid, f_slave, f_master);
+        // Show(Mainsolid);
     }
-    
+    DispalyElements();
     // finished
 }
 
@@ -191,7 +208,7 @@ void cEulerWorld::mev(cLoop * loop, cVertex * ori_vertex, const Eigen::Vector3d 
         exit(1);
     }
 
-    // 创建顶点
+    // create a new vertex
     cVertex * new_vertex = new cVertex();
     mVertexList.push_back(new_vertex);
     new_vertex->mPos = pos;    
@@ -404,6 +421,7 @@ void cEulerWorld::kemr(cSolid * solid, const Eigen::Vector3d & ori_v, const Eige
 
     // 3. create & set new loop, connect the new loop 
     cLoop * new_loop = new cLoop();
+    mLoopList.push_back(new_loop);
     if(cur_loop->mNextLoop != nullptr)
     {
         std::cout <<"[error] kemr: the next loop of cur_loop is not empty " << std::endl;
@@ -434,6 +452,36 @@ void cEulerWorld::kemr(cSolid * solid, const Eigen::Vector3d & ori_v, const Eige
     // 4. remove hf1 & hf2 & their edge accordly safely
     RemoveEdge(hf1, hf2);
 
+}
+
+void cEulerWorld::kfmrh(cSolid * solid, cFace *face_slave, cFace *face_master)
+{
+    // check input: face_slave have only 1 loop
+    if(!solid || !face_slave ||!face_master)
+    {
+        std::cout <<"[error] kfmrh: input empty!" << std::endl;
+        exit(1);
+    }
+    if(face_slave->mFirstLoop == nullptr || face_master->mFirstLoop == nullptr)
+    {
+        std::cout <<"[error] kfmrh: input faces are illegal" << std::endl;
+        exit(1);
+    }
+    if(face_slave->mFirstLoop->mNextLoop != nullptr)
+    {
+        std::cout <<"[error] kfmrh: face_slave has many loops, illegal" << std::endl;
+        exit(1);
+    }
+
+    // 1. find the final loop in face_master
+    cLoop * face_master_final_loop = face_master->mFirstLoop, * face_slave_inner_loop = face_slave->mFirstLoop;
+    while(face_master_final_loop->mNextLoop != nullptr) face_master_final_loop = face_master_final_loop->mNextLoop;
+    
+    // 2. connect 2 loops
+    face_master_final_loop->mNextLoop = face_slave_inner_loop;
+
+    // 3. remove face 
+    RemoveFace(face_slave);
 }
 
 void cEulerWorld::RemoveEdge(cHalfEdge * hf1, cHalfEdge * hf2)
@@ -498,4 +546,45 @@ void cEulerWorld::RemoveEdge(cHalfEdge * hf1, cHalfEdge * hf2)
     }
 
 
+}
+
+void cEulerWorld::RemoveFace(cFace * f)
+{
+    // check input
+    if(nullptr == f)
+    {
+        std::cout <<"[error] RemoveFace: input empty" << std::endl;
+        exit(1);
+    }
+
+    // search for its predecesoor
+    std::vector<cFace *>::iterator it_f = mFaceList.begin(), it_target = mFaceList.begin();
+    while(it_f != mFaceList.end())
+    {
+        if((*it_f)->mNextFace == f)
+        {
+            (*it_f)->mNextFace = f->mNextFace;
+        }
+        else if ((*it_f) == f)
+        {
+            it_target == it_f;
+        }
+        it_f++;
+    }
+
+    // remove face
+    mFaceList.erase(it_target);
+    delete f;
+}
+
+void cEulerWorld::DispalyElements()
+{
+    std::cout <<"----------------DisplayElements begin-----------------"<< std::endl;
+    std::cout <<"Vertex: " << this->mVertexList.size() << std::endl;
+    std::cout <<"HalfEdge: " << this->mHalfEdgeList.size() << std::endl;
+    std::cout <<"Edge: " << this->mEdgeList.size() << std::endl;
+    std::cout <<"Loop: " << this->mLoopList.size() << std::endl;
+    std::cout <<"Face: " << this->mFaceList.size() << std::endl;
+    std::cout <<"Solid: " << this->mSolidList.size() << std::endl;
+    std::cout <<"----------------DisplayElements end-----------------"<< std::endl;
 }

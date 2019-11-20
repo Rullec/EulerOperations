@@ -15,8 +15,10 @@ public:
     void mef(cSolid * solid, cVertex *v1, cVertex * v2);             // make a new edge and a face
     cSolid *mvfs(Eigen::Vector3d );            // make vertex, face, solid
     void kemr(cSolid * solid, const Eigen::Vector3d & ori_v, const Eigen::Vector3d & dest_v);            // kill edge make ring
-    void kfmrh();           // kill face make ring and h
+    void kfmrh(cSolid * solid, cFace *face_slave, cFace *face_master);           // kill face make ring and handle
 
+    // validation operation
+    void DispalyElements();
     std::vector<struct cVertex *> & GetVertexList(){return mVertexList;}
     std::vector<struct cHalfEdge *> & GetHalfEdgeList(){return mHalfEdgeList;}
     std::vector<struct cEdge *> & GetEdgeList(){return mEdgeList;}
@@ -27,7 +29,7 @@ public:
 private:
 
     void RemoveEdge(cHalfEdge * hf1, cHalfEdge * hf2);
-
+    void RemoveFace(cFace *);
     //ObjTypeNum vectors, prepare a vector for each obj type
     std::vector<struct cVertex *> mVertexList;
     std::vector<struct cHalfEdge *> mHalfEdgeList;
