@@ -31,7 +31,7 @@ void cEulerScene::Init()
 
 void cEulerScene::Update()
 {
-    std::cout <<"[log] cEulerScene Update" << std::endl;
+    // std::cout <<"[log] cEulerScene Update" << std::endl;
     if(SceneStatus::InitSucc != mSceneStatus)
     {
         std::cout <<"[warning] Scene status is " <<  SceneStatusStr[mSceneStatus] <<" but not " << 

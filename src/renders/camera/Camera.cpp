@@ -5,7 +5,7 @@
 #include "Camera.h"
 
 Camera::Camera() :
-        pos(glm::vec3(0.0f, 0.f, -1.0f)),
+        pos(glm::vec3(0.0f, 0.f, 1.0f)),
         tar(glm::vec3(0.0f, 0.f, 0.0f)),
         up(glm::vec3(0.0f, 1.0f, 0.0f)),
         last_x(0),
@@ -63,6 +63,16 @@ void Camera::moveForward(float camera_speed) {
 
 void Camera::moveBackward(float camera_speed) {
     Camera::pos -= glm::normalize(camera_front) * camera_speed;
+}
+
+void Camera::moveUp(float camera_speed)
+{
+    Camera::pos += glm::normalize(up) * camera_speed;
+}
+
+void Camera::moveDown(float camera_speed)
+{
+    Camera::pos -= glm::normalize(up) * camera_speed;
 }
 
 void Camera::mouseMove(float mouse_x, float mouse_y) {

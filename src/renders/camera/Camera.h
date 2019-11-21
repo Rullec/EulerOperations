@@ -32,7 +32,11 @@ public:
     void moveForward(float camera_speed=0.1);
 
     void moveBackward(float camera_speed=0.1);
+    
+    void moveUp(float camera_speed=0.1);
 
+    void moveDown(float camera_speed=0.1);
+    
     void mouseMove(float mouse_x, float moues_y);
 
     glm::mat4 ViewMatrix();

@@ -123,6 +123,7 @@ void cDrawScene::ParseConf()
 
 void cDrawScene::InitGL()
 {
+    // 1. set mainwindow size and create a new window
     glutInit(&(mMainWindowInfo->argc), mMainWindowInfo->argv);
     #ifdef __APPLE__
         glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
@@ -133,12 +134,11 @@ void cDrawScene::InitGL()
     glutInitWindowSize(mMainWindowInfo->width, mMainWindowInfo->height);
     glutCreateWindow("EulerOperationsMainWindow");
 
-    // std::cout << " set clear color " << std::endl;
+    // set clear color
     glClearColor(mMainWindowInfo->clear_color[0],
                 mMainWindowInfo->clear_color[1],
                 mMainWindowInfo->clear_color[2],
                 mMainWindowInfo->clear_color[3]);
-    glClear(GL_COLOR_BUFFER_BIT);
 
 }
 

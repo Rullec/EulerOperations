@@ -32,7 +32,7 @@ void cEulerRender::Init()
 
 void cEulerRender::Update()
 {
-    std::cout <<"[log] cEulerRender Update" << std::endl;
+    // std::cout <<"[log] cEulerRender Update" << std::endl;
     if(nullptr == mEulerWorld)
     {
         std::cout <<"[log] cEulerRender: ptr to Eulerworld is empty, return" << std::endl;
@@ -45,12 +45,10 @@ void cEulerRender::Update()
     mViewMat.transposeInPlace();
     mModelMat.transposeInPlace();
     
-    std::cout <<"[warning] cEulerRender::Update, potential bug here" << std::endl;
     glm::mat4 view_matrix = mCamera->ViewMatrix();
-    std::cout << glm::to_string(view_matrix) << std::endl;
+    glm::mat4 proj_matrix = glm::perspective(glm::radians(120.0f), 1.0f, 0.1f, 50.0f);
     
-    glUniformMatrix4fv(mProjectionLocation, 1, GL_FALSE, mProjectMat.data());
-    // glUniformMatrix4fv(mViewLocation, 1, GL_FALSE, mViewMat.data());
+    glUniformMatrix4fv(mProjectionLocation, 1, GL_FALSE, glm::value_ptr(proj_matrix));
     glUniformMatrix4fv(mViewLocation, 1, GL_FALSE, glm::value_ptr(view_matrix));
     glUniformMatrix4fv(mModelLocation, 1, GL_FALSE, mModelMat.data());
 
@@ -69,13 +67,15 @@ void cEulerRender::KeyBoardEvent(unsigned char key, int x, int y)
     case 'a': mCamera->moveLeft();break;
     case 's': mCamera->moveBackward();break;
     case 'd': mCamera->moveRight();break;
+    case 'z': mCamera->moveDown();break;
+    case 'x': mCamera->moveUp();break;
     default: 
         break;
     }
 }
 void cEulerRender::MouseMoveEvent(int x, int y)
 {
-    std::cout <<"[log] cEulerRender::MouseMove Event "<< x <<" " << y << std::endl;
+    // std::cout <<"[log] cEulerRender::MouseMove Event "<< x <<" " << y << std::endl;
     mCamera->mouseMove(x, y);
 }
 
@@ -115,6 +115,7 @@ void cEulerRender::DrawEdge()
 void cEulerRender::DrawVertex()
 {
     std::vector<cVertex *> vertex_list = mEulerWorld->GetVertexList();
+
     // std::cout <<"[log] draw " << vertex_list.size() << " vertices " << std::endl; 
 }
     

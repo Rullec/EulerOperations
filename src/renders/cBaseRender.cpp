@@ -36,7 +36,7 @@ void cBaseRender::Update()
         // std::cout << " set clear color " << std::endl;
     glClear(GL_COLOR_BUFFER_BIT);
 
-    std::cout <<"[log] cBaseRender Update" << std::endl;
+    // std::cout <<"[log] cBaseRender Update" << std::endl;
     glUseProgram(mShaderProgram);
 
     float vertices[] = {
