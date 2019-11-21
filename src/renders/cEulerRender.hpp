@@ -21,11 +21,12 @@ private:
     // methods
     void ConstructMembers();
     void DrawFace();
-    void DrawLoop(cLoop *);
+    void DrawOuterLoop(cLoop *);
+    void DrawInnerLoop(cLoop *);
+    
     void DrawEdge();
     void DrawVertex();
     
-
     // members
     // 1. resource members
     cEulerWorld * mEulerWorld;

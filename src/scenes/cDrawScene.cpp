@@ -131,22 +131,19 @@ void cDrawScene::InitGL()
     // 1. set mainwindow size and create a new window
     glutInit(&(mMainWindowInfo->argc), mMainWindowInfo->argv);
     #ifdef __APPLE__
-        glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+        glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
     #else
-        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+        glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
     #endif
     glutInitWindowPosition(100, 100);
     glutInitWindowSize(mMainWindowInfo->width, mMainWindowInfo->height);
     glutCreateWindow("EulerOperationsMainWindow");
 
-    // enalbe test & set clear color
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
+    // set clear
     glClearColor(mMainWindowInfo->clear_color[0],
-                mMainWindowInfo->clear_color[1],
-                mMainWindowInfo->clear_color[2],
-                mMainWindowInfo->clear_color[3]);
+            mMainWindowInfo->clear_color[1],
+            mMainWindowInfo->clear_color[2],
+            mMainWindowInfo->clear_color[3]);
 }
 
 void cDrawScene::InitRender()

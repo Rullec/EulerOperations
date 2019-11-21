@@ -48,6 +48,94 @@ void cEulerRender::Init()
     mColorPool.push_back(Eigen::Vector4f(0.8, 0.1, 0.6, 1.0));
 }
 
+// void draw_circle(int mShaderProgram)
+// {
+//     float circle[] = {
+//         1.5, 0, 0,
+//         0, 1.5, 0,
+//         -1.5, 0, 0,
+//         0, -1.5, 0,
+//     };
+
+//     glUseProgram(mShaderProgram);
+//     // VAO
+//     unsigned int VAO;
+//     glGenVertexArrays(1, &VAO);
+
+//     // 创建VBO并且写入数据
+//     unsigned int VBO;
+//     glBindVertexArray(VAO);
+//     glGenBuffers(1, &VBO);  // 生成VBO
+//     glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
+//     // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(circle), circle, GL_STATIC_DRAW);
+//     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+//     glEnableVertexAttribArray(0);
+    
+//     // render
+//     glBindVertexArray(VAO);
+//     glPointSize(4.0f);
+//     glDrawArrays(GL_POLYGON, 0, 4);
+
+// }
+
+// void draw_scene(int mShaderProgram)
+// {
+//     float circle[] = {
+//         1, 1, 0,
+//         -1, 1, 0,
+//         -1, -1, 0,
+//         1, -1, 0,
+//     };
+
+//     glUseProgram(mShaderProgram);
+//     // VAO
+//     unsigned int VAO;
+//     glGenVertexArrays(1, &VAO);
+
+//     // 创建VBO并且写入数据
+//     unsigned int VBO;
+//     glBindVertexArray(VAO);
+//     glGenBuffers(1, &VBO);  // 生成VBO
+//     glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
+//     // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
+//     glBufferData(GL_ARRAY_BUFFER, sizeof(circle), circle, GL_STATIC_DRAW);
+//     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+//     glEnableVertexAttribArray(0);
+    
+//     // render
+//     glBindVertexArray(VAO);
+//     glPointSize(4.0f);
+
+    
+//     glDrawArrays(GL_POLYGON, 0, 4);
+// }
+
+// void DrawTest(int shader)
+// {
+//     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+//     glDepthMask(GL_FALSE);
+//     glStencilFunc(GL_NEVER, 1, 0xFF);
+//     glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
+
+//     // draw stencil pattern
+//     glStencilMask(0xFF);
+//     glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+  
+//     draw_circle(shader);
+
+//     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//     glDepthMask(GL_TRUE);
+//     glStencilMask(0x00);
+//     // draw only where stencil's value is 1
+//     glStencilFunc(GL_EQUAL, 1, 0xFF);
+
+//     draw_scene(shader);
+
+//     // glDisable(GL_STENCIL_TEST);
+    
+// }
+
 void cEulerRender::Update()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -72,6 +160,7 @@ void cEulerRender::Update()
     glUniformMatrix4fv(mViewLocation, 1, GL_FALSE, glm::value_ptr(view_matrix));
     glUniformMatrix4fv(mModelLocation, 1, GL_FALSE, mModelMat.data());
 
+    // DrawTest(mShaderProgram);
     DrawVertex();
     DrawEdge();
     DrawFace();
@@ -98,7 +187,7 @@ void cEulerRender::MouseMoveEvent(int x, int y)
 
 void cEulerRender::MouseEvent(int button, int state, int x, int y)
 {
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    if(state == GLUT_DOWN)
     {
         // std::cout <<"[log] cEulerRender::MouseEvent: left button push down, reset camera <x,y>" << std::endl;
         mCamera->setFirstPos(x, y);
@@ -124,35 +213,97 @@ void cEulerRender::ConstructMembers()
 
 }
 
-void cEulerRender::DrawLoop(cLoop * cur_loop)
+void cEulerRender::DrawInnerLoop(cLoop * cur_loop)
 {
-    std::vector<Eigen::Vector3d> vertice_lst;
+    std::vector<Eigen::Vector3f> vertice_lst;
     cHalfEdge * first_he = cur_loop->mFirstHalfEdge;
     cHalfEdge * cur_he = first_he;
     do{
-        vertice_lst.push_back(cur_he->mOriVertex->mPos);
+        vertice_lst.push_back(Eigen::Vector3f(cur_he->mOriVertex->mPos[0], cur_he->mOriVertex->mPos[1], cur_he->mOriVertex->mPos[2]));
         cur_he = cur_he->mNextHF;
     }while(first_he != cur_he);
-    
-    // std::cout <<"vertices num = " << vertice_lst.size() << std::endl;
     
     // VAO
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
-
+    // std::cout <<"[log] VAO " << VAO <<std::endl;
     // 创建VBO并且写入数据
     unsigned int VBO;
     glBindVertexArray(VAO);
     glGenBuffers(1, &VBO);  // 生成VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
     // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * vertice_lst.size() * 3, vertice_lst[0].data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void *)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertice_lst.size() * 3, vertice_lst[0].data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     
     // render
     glBindVertexArray(VAO);
     
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    // glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_FALSE);
+    glStencilMask(0xFF);
+
+
+    Eigen::Vector4f color = mColorPool[1];
+    glUniform4f(mColorLocation, color[0], color[1], color[2], color[3]);
+
+    #ifdef __APPLE__
+        glDrawArrays(GL_TRIANGLE_FAN, 0, vertice_lst.size());  
+    #else
+        glDrawArrays(GL_POLYGON, 0, vertice_lst.size()); 
+    #endif
+
+    glBindVertexArray(0);
+}
+
+void cEulerRender::DrawOuterLoop(cLoop * cur_loop)
+{
+    // std::cout <<"[log] draw outer loop" <<std::endl;
+    std::vector<Eigen::Vector3f> vertice_lst;
+    cHalfEdge * first_he = cur_loop->mFirstHalfEdge;
+    cHalfEdge * cur_he = first_he;
+    do{
+        vertice_lst.push_back(Eigen::Vector3f(cur_he->mOriVertex->mPos[0], cur_he->mOriVertex->mPos[1], cur_he->mOriVertex->mPos[2]));
+        cur_he = cur_he->mNextHF;
+    }while(first_he != cur_he);
+    
+    // std::cout <<"vertices num = " << vertice_lst.size() << std::endl;
+    
+    if(cur_loop->VAO == -1)
+    {
+            // VAO
+        unsigned int VAO;
+        glGenVertexArrays(1, &VAO);
+        // std::cout <<"[log] VAO " << VAO <<std::endl;
+        // 创建VBO并且写入数据
+        unsigned int VBO;
+        glBindVertexArray(VAO);
+        glGenBuffers(1, &VBO);  // 生成VBO
+        glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
+        // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertice_lst.size() * 3, vertice_lst[0].data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+        glEnableVertexAttribArray(0);
+        
+        // render
+        cur_loop->VAO = VAO;
+    }
+    
+    glBindVertexArray(cur_loop->VAO);
+    
+
+    glStencilFunc(GL_EQUAL, 0, 0xFF);
+    glDepthMask(GL_TRUE);
+    
+    // glDepthFunc(GL_NEVER);
+
+    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+
     Eigen::Vector4f color = mColorPool[0];
     glUniform4f(mColorLocation, color[0], color[1], color[2], color[3]);
 
@@ -161,13 +312,17 @@ void cEulerRender::DrawLoop(cLoop * cur_loop)
     #else
         glDrawArrays(GL_POLYGON, 0, vertice_lst.size()); 
     #endif
+
+    glBindVertexArray(0);
+    glStencilMask(0xFF);
 }
 
 void cEulerRender::DrawFace()
 {
-    glEnable(GL_STENCIL_TEST);
-    glUseProgram(mShaderProgram);
+    
     std::vector<cFace *> face_list = mEulerWorld->GetFaceList();
+    glStencilFunc(GL_NEVER, 1, 0x00);
+
     for(int i=0; i< face_list.size(); i++)
     {
         cFace * cur_face = face_list[i];
@@ -176,53 +331,20 @@ void cEulerRender::DrawFace()
         cLoop * outer_loop = cur_face->mFirstLoop;
         cLoop * inner_loop = nullptr;
         if(outer_loop->mNextLoop != nullptr) inner_loop = outer_loop->mNextLoop;
-        else continue;
-        while(inner_loop)
-        {
-            /*
-                glstencilMask(0xFF;// 允许所有位置模板缓冲写入
-glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // 禁止修改颜色缓存
-glDepthMask(GL_FALSE); // 禁止修改深度缓存（存疑），但应该是这样，因为我们当他不存在。
-glStencilFunc(GL_NEVER, 1, 0xFF); // 永远测试失败，然后就要写入1
-glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP) // 对于深度缓存失败的，要替换掉(改写为1)
-            */
-            glStencilMask(0xFF);
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            glDepthMask(GL_FALSE);
-            glStencilFunc(GL_NEVER, 0x01, 0xFF);
-            glStencilOp(GL_ONE, GL_KEEP, GL_KEEP);
-            DrawLoop(inner_loop);
+        // else continue;
+
+        // 绘制内环
+        while (inner_loop) {
+            DrawInnerLoop(inner_loop);
             inner_loop = inner_loop->mNextLoop;
         }
-        
+
         // 绘制外环
-        /*
-禁止所有位置模板缓冲写入
-允许修改颜色缓存
-允许修改深度缓存。（存疑，但应该是必要的，现实存在的面必须参加深度测试）
-glStencilFunc(GL_EQUAL, 0, 0xFF); // 1的地方要失败，0的地方要成功，就是等于0
-glStencilOp(GL_Keep, gl_keep, gl_keep);
-        */
-        
-        
-        glStencilMask(0x00);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        glDepthMask(GL_TRUE);
-
-        // 我发现这里即使是never, 他该画还是画
-        glStencilFunc(GL_EQUAL, 1, 0xFF);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-
-        // 内环究竟绘制了没有？通过在这里按continue，我发现内环并没有出现，也就是说内环的确没有绘制。
-        // 所以，中间那部分其实还是外环画上去的。通过只画2个面，我发现。
-        // 那么错误有2种可能，一是模板测试没有做好(缺省值可能不对)
-        // continue;
-        DrawLoop(outer_loop);
-
+        DrawOuterLoop(outer_loop);
     }
     
     // glEnable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
+    // glDisable(GL_STENCIL_TEST);
 }
 
 void cEulerRender::DrawEdge()
@@ -230,22 +352,23 @@ void cEulerRender::DrawEdge()
     // set up vertices array for edges
     std::vector<cEdge *> edge_list = mEulerWorld->GetEdgeList();
     int num_edge = edge_list.size(), num_vertices = 2 * num_edge;// the number of points = 2 * the number of edges
-    double * vertices_lst = new double[num_vertices * 3];
+    float * vertices_lst = new float[num_vertices * 3];
     for(int i=0; i<num_edge; i++)
     {
         // get 2 end pts of this edge
         cHalfEdge * cur_he = edge_list[i]->mHalfEdge1;
-        memcpy(vertices_lst + i * 6, cur_he->mOriVertex->mPos.data(), sizeof(double) * 3);
-        memcpy(vertices_lst + i * 6 + 3, cur_he->mDestVertex->mPos.data(), sizeof(double) * 3);
-
-        // check memcpy
-        // for(int j=0; j<3; j++)
-        // {
-        //     std::cout << (vertices_lst + i * 6 + 3)[j] <<" " << cur_he->mDestVertex->mPos.data()[j] << std::endl;
-        // }
+        vertices_lst[6 * i + 0 ] = cur_he->mOriVertex->mPos[0];
+        vertices_lst[6 * i + 1 ] = cur_he->mOriVertex->mPos[1];
+        vertices_lst[6 * i + 2 ] = cur_he->mOriVertex->mPos[2];
+        
+        vertices_lst[6 * i + 3 ] = cur_he->mDestVertex->mPos[0];
+        vertices_lst[6 * i + 4 ] = cur_he->mDestVertex->mPos[1];
+        vertices_lst[6 * i + 5 ] = cur_he->mDestVertex->mPos[2];
+        
     }
 
     glUseProgram(mShaderProgram);
+
     // VAO
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -256,8 +379,8 @@ void cEulerRender::DrawEdge()
     glGenBuffers(1, &VBO);  // 生成VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
     // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * num_vertices * 3, vertices_lst, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void *)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * num_vertices * 3, vertices_lst, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     
     // render
@@ -272,11 +395,14 @@ void cEulerRender::DrawEdge()
 void cEulerRender::DrawVertex()
 {
     std::vector<cVertex *> vertex_list = mEulerWorld->GetVertexList();
-    double * vertices = new double[vertex_list.size() * 3];
+    float * vertices = new float[vertex_list.size() * 3];
     // std::cout <<"[log] Draw vertex: " << vertex_list.size() << std::endl;
     for(int i=0; i<vertex_list.size(); i++)
     {
-        memcpy(vertices + i * 3, vertex_list[i]->mPos.data(), sizeof(double) * 3);
+        // memcpy(vertices + i * 3, vertex_list[i]->mPos.data(), sizeof(float) * 3);
+        vertices[3 * i +0 ] = vertex_list[i]->mPos[0];
+        vertices[3 * i +1 ] = vertex_list[i]->mPos[1];
+        vertices[3 * i +2 ] = vertex_list[i]->mPos[2];
     }
 
     glUseProgram(mShaderProgram);
@@ -290,8 +416,8 @@ void cEulerRender::DrawVertex()
     glGenBuffers(1, &VBO);  // 生成VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // 把VBO绑定为vertex buffer的类型，也就是GL_ARRAY_BUFFER。如果想要绑定到别的着色器，那就不选这个目标。
     // std::cout <<"[log] vbo size = " << sizeof(v) << std::endl;
-    glBufferData(GL_ARRAY_BUFFER, sizeof(double) * vertex_list.size() * 3, vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void *)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertex_list.size() * 3, vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
     
     // render

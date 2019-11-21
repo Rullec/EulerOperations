@@ -27,6 +27,7 @@ struct cSolid;
 struct cBaseObj{
     cBaseObj();
     enum ObjType mObjType;
+    unsigned int VAO;
 };
 
 // vertex

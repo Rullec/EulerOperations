@@ -3,8 +3,8 @@
 // base object
 cBaseObj::cBaseObj()
 {
-
     mObjType = ObjType::Undefined; 
+    VAO = -1;
 }
 
 // Vertex object

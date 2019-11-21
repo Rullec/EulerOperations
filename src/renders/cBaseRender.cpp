@@ -23,6 +23,10 @@ cBaseRender::~cBaseRender()
 
 void cBaseRender::Init()
 {
+    // init GL
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+
     // parse conf
     ParseConf();
 
