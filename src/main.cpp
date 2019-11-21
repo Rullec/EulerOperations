@@ -41,10 +41,9 @@ void KeyFunc(unsigned char key, int x, int y)
     }
     
     scene->KeyBoardEvent(key, x, y);
-    scene->Update();
 }
 
-void Mouse(int x0, int y0, int x1, int y1)
+void Mouse(int button, int state, int x, int y)
 {
     // std::cout <<"mouse called" << std::endl;
     if(nullptr == scene)
@@ -52,8 +51,7 @@ void Mouse(int x0, int y0, int x1, int y1)
         std::cout <<"[error] scene in nullptr in mouse(), please init scene at frist!" << std::endl;
         exit(1);
     }
-    // scene->MouseEvent(x1, y1);
-    scene->Update();
+    scene->MouseEvent(button, state, x, y);
 }
 
 void OnMouseMove(int x, int y)

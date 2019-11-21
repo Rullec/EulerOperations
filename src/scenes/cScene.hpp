@@ -10,7 +10,7 @@ public:
     virtual void Update() = 0;
     virtual void KeyBoardEvent(unsigned char key, int x, int y) = 0;
     virtual void MouseMoveEvent(int, int) = 0;
-
+    virtual void MouseEvent(int button, int state, int x, int y) = 0;
 protected:
     enum SceneStatus{
         BeforeInit = 0,

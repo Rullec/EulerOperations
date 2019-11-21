@@ -567,7 +567,7 @@ void cEulerWorld::RemoveFace(cFace * f)
         }
         else if ((*it_f) == f)
         {
-            it_target == it_f;
+            it_target = it_f;
         }
         it_f++;
     }

@@ -78,6 +78,11 @@ void cDrawScene::MouseMoveEvent(int x, int y)
 
 }
 
+void cDrawScene::MouseEvent(int button, int state, int x, int y)
+{
+
+}
+
 void cDrawScene::MainLoop()
 {
     glutMainLoop();
@@ -134,11 +139,16 @@ void cDrawScene::InitGL()
     glutInitWindowSize(mMainWindowInfo->width, mMainWindowInfo->height);
     glutCreateWindow("EulerOperationsMainWindow");
 
-    // set clear color
+    // enalbe test & set clear color
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glClearColor(mMainWindowInfo->clear_color[0],
                 mMainWindowInfo->clear_color[1],
                 mMainWindowInfo->clear_color[2],
                 mMainWindowInfo->clear_color[3]);
+    
 
 }
 

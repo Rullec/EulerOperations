@@ -68,6 +68,20 @@ void cEulerScene::MouseMoveEvent(int x, int y)
     euler_render->MouseMoveEvent(x, y);
 }
 
+void cEulerScene::MouseEvent(int button, int state, int x,int y)
+{
+    cDrawScene::MouseEvent(button, state, x, y);
+
+    cEulerRender * euler_render = dynamic_cast<cEulerRender *>(mRender.get());
+    if(nullptr == euler_render)
+    {
+        std::cout <<"[error] cEulerScene::MouseEvent: dynamic_cast failed" << std::endl;
+        exit(1);
+    }
+
+    euler_render->MouseEvent(button, state, x, y);
+}
+
 void cEulerScene::MainLoop()
 {
     cDrawScene::MainLoop();

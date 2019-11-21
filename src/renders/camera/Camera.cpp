@@ -45,6 +45,12 @@ void Camera::setTar(const glm::vec3 &tar) {
     Camera::tar = tar;
 }
 
+void Camera::setFirstPos(float x, float y)
+{
+    last_x = x;
+    last_y = y;
+}
+
 void Camera::moveLeft(float camera_speed) {
     glm::vec3 move = glm::cross(camera_front, Camera::up);
     move = glm::normalize(move) * camera_speed;
@@ -89,7 +95,7 @@ void Camera::mouseMove(float mouse_x, float mouse_y) {
     last_x = mouse_x;
     last_y = mouse_y;
 
-    float sensitivity = 0.05f;
+    float sensitivity = 0.1f;
     x_offset *= sensitivity;
     y_offset *= sensitivity;
 

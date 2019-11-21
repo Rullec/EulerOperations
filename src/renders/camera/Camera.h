@@ -25,6 +25,8 @@ public:
 
     void setTar(const glm::vec3 &tar);
 
+    void setFirstPos(float x, float y);
+    
     void moveLeft(float camera_speed=0.1);
 
     void moveRight(float camera_speed=0.1);

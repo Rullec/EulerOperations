@@ -10,6 +10,7 @@ public:
     virtual void Update() override final;
     virtual void KeyBoardEvent(unsigned char key, int x, int y) override final;
     virtual void MouseMoveEvent(int, int) override final;
+    virtual void MouseEvent(int, int ,int ,int ) override final;
     virtual void MainLoop() override final;
 
 private:

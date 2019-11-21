@@ -31,6 +31,7 @@ public:
     virtual void Update() override;
     virtual void KeyBoardEvent(unsigned char key, int x, int y) override;
     virtual void MouseMoveEvent(int, int) override;
+    virtual void MouseEvent(int button, int state, int x, int y) override;
     virtual void MainLoop();
 
 protected:
