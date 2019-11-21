@@ -28,35 +28,45 @@ void Display()
         exit(1);
     }
     scene->Update();
+    glutPostRedisplay();
     glutSwapBuffers();
+    
 }
 
-void KeyFunc(unsigned char , int, int)
+void KeyFunc(unsigned char key, int x, int y)
 {
     if(nullptr == scene)
     {
         std::cout <<"[error] scene in nullptr in keyfunc(), please init scene at frist!" << std::endl;
         exit(1);
     }
+    scene->KeyBoardEvent(key, x, y);
+    scene->Update();
 }
 
 void Mouse(int x0, int y0, int x1, int y1)
 {
-    std::cout <<"mouse called" << std::endl;
+    // std::cout <<"mouse called" << std::endl;
     if(nullptr == scene)
     {
         std::cout <<"[error] scene in nullptr in mouse(), please init scene at frist!" << std::endl;
         exit(1);
     }
+    // scene->MouseEvent(x1, y1);
+    scene->Update();
 }
 
-void OnMouseMove(int, int)
+void OnMouseMove(int x, int y)
 {
+    unsigned int width = glutGet(GLUT_WINDOW_WIDTH), height = glutGet(GLUT_WINDOW_HEIGHT);
+    std::cout <<"[log] mouse move " <<x <<" " << y << std::endl;
+    std::cout <<"[log] total size " <<width <<" " << height << std::endl;
     if(nullptr == scene)
     {
         std::cout <<"[error] scene in nullptr in OnMouseMove(), please init scene at frist!" << std::endl;
         exit(1);
     }
+    scene->MouseMoveEvent(x, y);
 }
 
 int main(int argc, char ** argv)

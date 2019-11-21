@@ -8,6 +8,8 @@ public:
     ~cScene();
     virtual void Init() = 0;
     virtual void Update() = 0;
+    virtual void KeyBoardEvent(unsigned char key, int x, int y) = 0;
+    virtual void MouseMoveEvent(int, int) = 0;
 
 protected:
     enum SceneStatus{

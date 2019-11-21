@@ -68,6 +68,15 @@ void cDrawScene::Update()
     
     mRender->Update();
 }
+void cDrawScene::KeyBoardEvent(unsigned char key, int x, int y)
+{
+    
+}
+
+void cDrawScene::MouseMoveEvent(int x, int y)
+{
+
+}
 
 void cDrawScene::MainLoop()
 {

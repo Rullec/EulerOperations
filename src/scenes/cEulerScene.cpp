@@ -42,6 +42,32 @@ void cEulerScene::Update()
     mRender->Update();
 }
 
+void cEulerScene::KeyBoardEvent(unsigned char key, int x, int y)
+{
+    cDrawScene::KeyBoardEvent(key, x, y);
+    
+    cEulerRender * euler_render = dynamic_cast<cEulerRender *>(mRender.get());
+    if(nullptr == euler_render)
+    {
+        std::cout <<"[error] cEulerScene::KeyBoardEvent: dynamic_cast failed" << std::endl;
+        exit(1);
+    }
+    euler_render->KeyBoardEvent(key, x, y);
+}
+
+void cEulerScene::MouseMoveEvent(int x, int y)
+{
+    cDrawScene::MouseMoveEvent(x, y);
+
+    cEulerRender * euler_render = dynamic_cast<cEulerRender *>(mRender.get());
+    if(nullptr == euler_render)
+    {
+        std::cout <<"[error] cEulerScene::MouseMoveEvent: dynamic_cast failed" << std::endl;
+        exit(1);
+    }
+    euler_render->MouseMoveEvent(x, y);
+}
+
 void cEulerScene::MainLoop()
 {
     cDrawScene::MainLoop();
@@ -57,5 +83,11 @@ void cEulerScene::InitRender(){
     mRender->Init();
 
     cEulerRender * tmp_render = dynamic_cast<cEulerRender *>(mRender.get());
+    if(tmp_render == nullptr)
+    {
+        std::cout <<"[error] cEulerScene::InitRender failed" << std::endl;
+        exit(1);
+    }
+    
     tmp_render->SetEulerWorld(mEulerWorld.get());
 }

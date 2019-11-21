@@ -7,6 +7,7 @@
 #include <fstream>
 #include <json/json.h>
 #include <GL/glew.h>
+
 using namespace std;
 
 // -------------------BaseRender begin-------------------
@@ -32,12 +33,16 @@ void cBaseRender::Init()
 
 void cBaseRender::Update()
 {
+        // std::cout << " set clear color " << std::endl;
+    glClear(GL_COLOR_BUFFER_BIT);
+
     std::cout <<"[log] cBaseRender Update" << std::endl;
     glUseProgram(mShaderProgram);
+
     float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.0f,  0.5f, -0.5f
     };
 
     // VAO
@@ -55,6 +60,7 @@ void cBaseRender::Update()
     
     // render
     glBindVertexArray(VAO);
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 

@@ -29,6 +29,8 @@ public:
     ~cDrawScene();
     virtual void Init() override;
     virtual void Update() override;
+    virtual void KeyBoardEvent(unsigned char key, int x, int y) override;
+    virtual void MouseMoveEvent(int, int) override;
     virtual void MainLoop();
 
 protected:
