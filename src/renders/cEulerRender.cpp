@@ -135,7 +135,7 @@ void cEulerRender::DrawLoop(cLoop * cur_loop)
     }while(first_he != cur_he);
     
     // std::cout <<"vertices num = " << vertice_lst.size() << std::endl;
-    glUseProgram(mShaderProgram);
+    
     // VAO
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -156,44 +156,73 @@ void cEulerRender::DrawLoop(cLoop * cur_loop)
     Eigen::Vector4f color = mColorPool[0];
     glUniform4f(mColorLocation, color[0], color[1], color[2], color[3]);
 
-    glDrawArrays(GL_POLYGON, 0, vertice_lst.size());  
+    #ifdef __APPLE__
+        glDrawArrays(GL_TRIANGLE_FAN, 0, vertice_lst.size());  
+    #else
+        glDrawArrays(GL_POLYGON, 0, vertice_lst.size()); 
+    #endif
 }
 
 void cEulerRender::DrawFace()
 {
+    glEnable(GL_STENCIL_TEST);
+    glUseProgram(mShaderProgram);
     std::vector<cFace *> face_list = mEulerWorld->GetFaceList();
     for(int i=0; i< face_list.size(); i++)
     {
         cFace * cur_face = face_list[i];
-
+        // std::cout <<"[log] draw face " << i << std::endl;
         // 绘制内环 
         cLoop * outer_loop = cur_face->mFirstLoop;
         cLoop * inner_loop = nullptr;
         if(outer_loop->mNextLoop != nullptr) inner_loop = outer_loop->mNextLoop;
-
+        else continue;
         while(inner_loop)
         {
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            /*
+                glstencilMask(0xFF;// 允许所有位置模板缓冲写入
+glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); // 禁止修改颜色缓存
+glDepthMask(GL_FALSE); // 禁止修改深度缓存（存疑），但应该是这样，因为我们当他不存在。
+glStencilFunc(GL_NEVER, 1, 0xFF); // 永远测试失败，然后就要写入1
+glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP) // 对于深度缓存失败的，要替换掉(改写为1)
+            */
+            glStencilMask(0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             glDepthMask(GL_FALSE);
-            glStencilMask(0xFF);
+            glStencilFunc(GL_NEVER, 0x01, 0xFF);
+            glStencilOp(GL_ONE, GL_KEEP, GL_KEEP);
             DrawLoop(inner_loop);
             inner_loop = inner_loop->mNextLoop;
         }
         
         // 绘制外环
-        glStencilFunc(GL_EQUAL, 0, 0xFF);
-        glDepthMask(GL_TRUE);
-        glStencilOp(GL_ZERO, GL_KEEP, GL_KEEP);
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        DrawLoop(outer_loop);
+        /*
+禁止所有位置模板缓冲写入
+允许修改颜色缓存
+允许修改深度缓存。（存疑，但应该是必要的，现实存在的面必须参加深度测试）
+glStencilFunc(GL_EQUAL, 0, 0xFF); // 1的地方要失败，0的地方要成功，就是等于0
+glStencilOp(GL_Keep, gl_keep, gl_keep);
+        */
         
-        glStencilMask(0xFF);
+        
+        glStencilMask(0x00);
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glDepthMask(GL_TRUE);
+
+        // 我发现这里即使是never, 他该画还是画
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+        // 内环究竟绘制了没有？通过在这里按continue，我发现内环并没有出现，也就是说内环的确没有绘制。
+        // 所以，中间那部分其实还是外环画上去的。通过只画2个面，我发现。
+        // 那么错误有2种可能，一是模板测试没有做好(缺省值可能不对)
+        // continue;
+        DrawLoop(outer_loop);
 
     }
     
     // glEnable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
 }
 
 void cEulerRender::DrawEdge()

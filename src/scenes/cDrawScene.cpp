@@ -143,13 +143,10 @@ void cDrawScene::InitGL()
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glClearColor(mMainWindowInfo->clear_color[0],
                 mMainWindowInfo->clear_color[1],
                 mMainWindowInfo->clear_color[2],
                 mMainWindowInfo->clear_color[3]);
-    
-
 }
 
 void cDrawScene::InitRender()

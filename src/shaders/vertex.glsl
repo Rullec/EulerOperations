@@ -4,9 +4,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec4 color;
-
 out vec4 Color;
-
 void main()
 {
     vec4 model_pos = model * vec4(Position.x, Position.y, Position.z, 1.0);
